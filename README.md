@@ -1,3 +1,9 @@
+# shell-bot
+
+# How to deploy?
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/iamjitendrakumar/sh)
+
 # Shell-bot ![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/MannyHackers/Shell-Bot)
 
 This is a fully functional shellrunner [Telegram bot][]. You tell it a
