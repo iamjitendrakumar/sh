@@ -1,27 +1,41 @@
 FROM python:3-slim-buster
 
+# Install all the required packages
 WORKDIR /usr/src/app
 RUN chmod 777 /usr/src/app
-RUN apt-get -qq update && \
-    DEBIAN_FRONTEND="noninteractive" apt-get -qq install -y tzdata aria2 git python3 python3-pip \
-    locales python3-lxml \
-    curl pv jq ffmpeg streamlink rclone \
-    wget mediainfo git zip unzip \
-    p7zip-full p7zip-rar \
-    libcrypto++-dev libssl-dev \
-    libc-ares-dev libcurl4-openssl-dev \
-    libsqlite3-dev libsodium-dev &&
+RUN apt-get -qq update
+RUN apt-get -qq install -y --no-install-recommends curl git gnupg2 unzip wget pv jq
 
-#gdrive downloader
-RUN wget -P /tmp https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf /tmp/go1.17.1.linux-amd64.tar.gz
-RUN rm /tmp/go1.17.1.linux-amd64.tar.gz
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
-RUN go get github.com/Jitendra7007/gdrive
-RUN echo "KGdkcml2ZSB1cGxvYWQgIiQxIikgMj4gL2Rldi9udWxsIHwgZ3JlcCAtb1AgJyg/PD1VcGxvYWRlZC4pW2EtekEtWl8wLTktXSsnID4gZztnZHJpdmUgc2hhcmUgJChjYXQgZykgPi9kZXYvbnVsbCAyPiYxO2VjaG8gImh0dHBzOi8vZHJpdmUuZ29vZ2xlLmNvbS9maWxlL2QvJChjYXQgZykiCg==" | base64 -d > /usr/local/bin/gup && \
-chmod +x /usr/local/bin/gup
+# add mkvtoolnix
+RUN wget -q -O - https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add - && \
+    wget -qO - https://ftp-master.debian.org/keys/archive-key-10.asc | apt-key add -
+RUN sh -c 'echo "deb https://mkvtoolnix.download/debian/ buster main" >> /etc/apt/sources.list.d/bunkus.org.list' && \
+    sh -c 'echo deb http://deb.debian.org/debian buster main contrib non-free | tee -a /etc/apt/sources.list' && apt update && apt install -y mkvtoolnix
+
+# install required packages
+RUN apt-get update && apt-get install -y software-properties-common && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-add-repository non-free && \
+    apt-get -qq update && apt-get -qq install -y --no-install-recommends \
+    # this package is required to fetch "contents" via "TLS"
+    apt-transport-https \
+    # install coreutils
+    coreutils aria2 jq pv gcc g++ \
+    # install encoding tools
+    mediainfo \
+    # miscellaneous
+    neofetch python3-dev git bash build-essential nodejs npm ruby \
+    python-minimal locales python-lxml qbittorrent-nox nginx gettext-base xz-utils \
+    # install extraction tools
+    p7zip-full p7zip-rar rar unrar zip unzip \
+    # miscellaneous helpers
+    megatools mediainfo && \
+    # clean up the container "layer", after we are done
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 #team drive downloader
 RUN curl -L https://github.com/jaskaranSM/drivedlgo/releases/download/1.5/drivedlgo_1.5_Linux_x86_64.gz -o drivedl.gz && \
@@ -35,12 +49,6 @@ RUN echo "ZWNobyBodHRwOi8vbG9jYWxob3N0OjgwMDAvJChweXRob24zIC1jICdmcm9tIHVybGxpYi
 #heroku files downloader - bot ki files ko https://.herokuapp.com ke through download karna
 RUN echo "cGtpbGwgZ3VuaWNvcm4gMj4gdC50eHQ7cHl0aG9uMyAtbSBodHRwLnNlcnZlciAiJFBPUlQiIDI+IHQudHh0" | base64 -d > /usr/local/bin/h && chmod +x /usr/local/bin/h
 RUN echo "ZWNobyAkQkFTRV9VUkxfT0ZfQk9ULyQocHl0aG9uMyAtYyAnZnJvbSB1cmxsaWIucGFyc2UgaW1wb3J0IHF1b3RlOyBpbXBvcnQgc3lzOyBwcmludChxdW90ZShzeXMuYXJndlsxXSkpJyAiJDEiKQ==" | base64 -d > /usr/local/bin/hl && chmod +x /usr/local/bin/hl
-
-#add mkvtoolnix
-RUN wget -q -O - https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add - && \
-    wget -qO - https://ftp-master.debian.org/keys/archive-key-10.asc | apt-key add -
-RUN sh -c 'echo "deb https://mkvtoolnix.download/debian/ buster main" >> /etc/apt/sources.list.d/bunkus.org.list' && \
-    sh -c 'echo deb http://deb.debian.org/debian buster main contrib non-free | tee -a /etc/apt/sources.list' && apt update && apt install -y mkvtoolnix
 
 #add mega cmd
 RUN apt-get update && apt-get install libpcrecpp0v5 libcrypto++6 -y && \
