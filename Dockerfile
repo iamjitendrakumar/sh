@@ -7,10 +7,7 @@ RUN apt-get -qq update && \
     locales python3-lxml \
     curl pv jq ffmpeg streamlink rclone \
     wget mediainfo git zip unzip \
-    p7zip-full p7zip-rar \
-    libcrypto++-dev libssl-dev \
-    libc-ares-dev libcurl4-openssl-dev \
-    libsqlite3-dev libsodium-dev
+    p7zip-full p7zip-rar
 
 #gdrive downloader
 RUN wget -P /tmp https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
