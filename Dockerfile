@@ -34,51 +34,6 @@ RUN apt-get update && apt-get install -y software-properties-common && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-# From vanb: https://github.com/vanb/ffmpeg-sox
-FROM ubuntu:trusty
-
-# From https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
-
-
-# Update and install minimal packages.
-RUN \
-  apt-get update \
-            --quiet \
-  && apt-get install sox \
-            --yes \
-  && apt-get install \ 
-            --yes \
-            --no-install-recommends \
-            --no-install-suggests \
-  autoconf automake build-essential libass-dev libfreetype6-dev \
-  libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev \
-  libxcb-xfixes0-dev pkg-config texinfo zlib1g-dev wget \
-  
-# Yasm & libx264 & libmp3lame & libopus  
-  yasm libx264-dev libmp3lame-dev libopus-dev
-
-# # Clean up packages.
-#     && apt-get clean \
-#     && rm -rf /var/lib/apt/lists/*
-
-# Prepare for cloning/building.
-RUN mkdir ~/ffmpeg_sources
-WORKDIR ~/ffmpeg_sources
-# libfdk-aac
-RUN cd ~/ffmpeg_sources && \
- wget -O fdk-aac.tar.gz --no-check-certificate https://github.com/mstorsjo/fdk-aac/tarball/master && \
- tar xzvf fdk-aac.tar.gz && \
- cd mstorsjo-fdk-aac* && \
- autoreconf -fiv && \
- ./configure --prefix="$HOME/ffmpeg_build" --disable-shared && \
- make && \
- make install && \
- make distclean && \
- cd ~/ffmpeg_sources && \
- rm -rf /ffmpeg_sources/mstorsjo-fdk-aac*
-ENV PATH /root/bin:$PATH
 
 #PSA unofficial telegram channel bypass script
 RUN echo "aWYgWyAkMSBdCnRoZW4KcHl0aG9uMyAtYyAiZXhlYyhcImltcG9ydCByZXF1ZXN0cyBhcyBycSxz\neXNcbmZyb20gYmFzZTY0IGltcG9ydCBiNjRkZWNvZGUgYXMgZFxucz1ycS5nZXQoc3lzLmFyZ3Zb\nMV0pLnJlcXVlc3QudXJsLnNwbGl0KCc9JywxKVsxXVxuZm9yIGkgaW4gcmFuZ2UoMyk6IHM9ZChz\nKVxucHJpbnQoJ2h0dHAnK3MuZGVjb2RlKCkucnNwbGl0KCdodHRwJywxKVsxXSlcIikiICQxCmVs\nc2UKZWNobyAiYmFkIHJlcSIKZmkK" | base64 -d > /usr/bin/psa;chmod +x /usr/bin/psa
